@@ -1,5 +1,4 @@
-var eligible_haikus = [],
-    haikus = document.querySelectorAll('div[data-subreddit=youtubehaiku]'),
+var haikus = document.querySelectorAll('div[data-subreddit=youtubehaiku]'),
     haiku_is_eligible = function (haiku_element) {
       var score_element = haiku_element.querySelector('div.score'),
           score = 0;
@@ -27,15 +26,20 @@ var eligible_haikus = [],
         return code_match[1];
       }
       return null;
+    },
+    get_playlist = function () {
+      var eligible_haikus = [];
+      for(var i = 0; i < haikus.length; i++){
+        if (haiku_is_eligible(haikus[i])) {
+          var code = get_youtube_code(haikus[i]);
+          if (code) {
+            eligible_haikus.push(code);
+          }
+        }
+      }
+      return 'https://www.youtube.com/watch_videos?video_ids=' + eligible_haikus.join(',');
     };
 
-for(var i = 0; i < haikus.length; i++){
-  if (haiku_is_eligible(haikus[i])) {
-    var code = get_youtube_code(haikus[i]);
-    if (code) {
-      eligible_haikus.push(code);
-    }
-  }
-}
-
-console.log('youtube url','https://www.youtube.com/watch_videos?video_ids=' + eligible_haikus.join(','));
+// console.log('youtube url', get_playlist());
+// chrome.windows.create({"url":get_playlist(), "incognito":true});
+chrome.runtime.sendMessage({url:get_playlist()});
